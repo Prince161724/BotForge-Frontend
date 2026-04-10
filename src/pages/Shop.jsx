@@ -5,7 +5,7 @@ import ChatWidget from '../chatbots/ChatWidget';
 import { ShoppingBag, Sparkles, Star, Eye } from 'lucide-react';
 import './Shop.css';
 
-const API_URL = 'https://botforge-backend-82fe.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
 
 export default function Shop() {
   const [bots, setBots] = useState([]);

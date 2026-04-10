@@ -6,12 +6,12 @@ import { ArrowLeft, Sparkles, MessageSquare, Star, Check, Plus, Monitor, Palette
 import './BotDetail.css';
 import './BotDetail.css';
 
-const API_URL = 'https://botforge-backend-82fe.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
 
 const FEATURE_ICONS = [Zap, Star, MessageSquare, Monitor, Palette, Heart];
 
 function generateWidgetCode(bot, token) {
-  const serverURL = 'https://botforge-backend-82fe.onrender.com';
+  const serverURL = 'http://localhost:5000';
   const displayToken = 'test_token_123';
   return `<script src="${serverURL}/widget.js?bot=${bot.id}&token=${displayToken}"></script>`;
 }
@@ -233,7 +233,7 @@ export default function BotDetail() {
         </div>
 
         <div className="bd-code-note">
-          <strong>💡 Setup:</strong> Replace <code>https://botforge-backend-82fe.onrender.com</code> with your deployed BotForge server URL and verify the embedded token is valid for your user. Place this script right before your closing <code>&lt;/body&gt;</code> tag.
+          <strong>💡 Setup:</strong> Replace <code>http://localhost:5000</code> with your deployed BotForge server URL and verify the embedded token is valid for your user. Place this script right before your closing <code>&lt;/body&gt;</code> tag.
         </div>
       </section>
 

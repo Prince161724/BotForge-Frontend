@@ -4,7 +4,7 @@ import { useChatState } from '../context/ChatContext';
 import { X, Send, Trash2, Sparkles, Minimize2, Maximize2 } from 'lucide-react';
 import './ChatWidget.css';
 
-const API_URL = 'https://botforge-backend-82fe.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
 
 // Each bot has a unique response visual style AND position
 const BOT_STYLES = {
@@ -53,6 +53,8 @@ export default function ChatWidget({ bot, onClose }) {
   const [streamingText, setStreamingText] = useState('');
   const [isClosing, setIsClosing] = useState(false);
   const [isOpening, setIsOpening] = useState(true);
+  const [isTrained, setIsTrained] = useState(false);
+  const [questionLimitReached, setQuestionLimitReached] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const abortRef = useRef(null);
@@ -75,6 +77,16 @@ export default function ChatWidget({ bot, onClose }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingText]);
 
+  // Auto-detect limit when messages update (after 3rd question is answered)
+  useEffect(() => {
+    if (isTrained && !questionLimitReached) {
+      const userCount = messages.filter(m => m.role === 'user').length;
+      if (userCount >= 3) {
+        setQuestionLimitReached(true);
+      }
+    }
+  }, [messages, isTrained]);
+
   const loadHistory = async () => {
     try {
       const res = await fetch(`${API_URL}/chat/history/${bot.id}`, {
@@ -85,6 +97,12 @@ export default function ChatWidget({ bot, onClose }) {
         setMessages(data.messages);
       } else {
         setMessages([{ role: 'assistant', content: getWelcomeMessage(bot.id) }]);
+      }
+      if (data.isTrained) {
+        setIsTrained(true);
+        if (data.userMessageCount >= 3) {
+          setQuestionLimitReached(true);
+        }
       }
     } catch (err) {
       setMessages([{ role: 'assistant', content: getWelcomeMessage(bot.id) }]);
@@ -105,7 +123,7 @@ export default function ChatWidget({ bot, onClose }) {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || questionLimitReached) return;
 
     const userMsg = { role: 'user', content: input };
     setMessages(prev => [...prev, userMsg]);
@@ -127,6 +145,13 @@ export default function ChatWidget({ bot, onClose }) {
         signal: controller.signal
       });
 
+      // Check if limit was rejected before SSE started
+      if (res.status === 429) {
+        setMessages(prev => prev.slice(0, -1)); // remove optimistic user message
+        setQuestionLimitReached(true);
+        return;
+      }
+
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let fullText = '';
@@ -142,7 +167,9 @@ export default function ChatWidget({ bot, onClose }) {
           if (line.startsWith('data: ')) {
             const data = line.slice(6);
             if (data === '[DONE]') {
-              setMessages(prev => [...prev, { role: 'assistant', content: fullText }]);
+              if (fullText) {
+                setMessages(prev => [...prev, { role: 'assistant', content: fullText }]);
+              }
               setStreamingText('');
             } else {
               try {
@@ -286,20 +313,28 @@ export default function ChatWidget({ bot, onClose }) {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Question limit banner */}
+        {questionLimitReached && (
+          <div className="cw-limit-banner" style={{ borderColor: bot.theme.primary, color: bot.theme.primary }}>
+            <span>🔒 3-question limit reached for this trained bot.</span>
+          </div>
+        )}
+
         {/* Input */}
         <form className="cw-input-area" onSubmit={handleSend}>
           <input
             ref={inputRef}
             type="text"
-            placeholder={`Message ${bot.name}...`}
+            placeholder={questionLimitReached ? 'Question limit reached' : `Message ${bot.name}...`}
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            disabled={questionLimitReached}
             style={{ '--cw-focus-color': bot.theme.primary }}
           />
           <button
             type="submit"
-            disabled={!input.trim() || isLoading}
-            style={{ background: input.trim() && !isLoading ? bot.theme.gradient : '' }}
+            disabled={!input.trim() || isLoading || questionLimitReached}
+            style={{ background: input.trim() && !isLoading && !questionLimitReached ? bot.theme.gradient : '' }}
           >
             <Send size={16} />
           </button>

@@ -10,6 +10,7 @@ import Shop from './pages/Shop';
 import BotDetail from './pages/BotDetail';
 import MyBots from './pages/MyBots';
 import SupportBot from './components/SupportBot';
+import FireCursor from './components/FireCursor';
 import './App.css';
 
 const GOOGLE_CLIENT_ID = '1078241988035-fbrjhlueth7ubl9rsdd55ns88n2b0kri.apps.googleusercontent.com';
@@ -56,6 +57,7 @@ function App() {
           </Router>
         </ChatProvider>
       </AuthProvider>
+      <FireCursor />
     </GoogleOAuthProvider>
   );
 }

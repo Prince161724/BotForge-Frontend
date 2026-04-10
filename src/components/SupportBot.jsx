@@ -3,7 +3,7 @@ import { MessageSquare, X, Send, Bot, Minimize2 } from 'lucide-react';
 import { useChatState } from '../context/ChatContext';
 import './SupportBot.css';
 
-const API_URL = 'https://botforge-backend-82fe.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
 
 export default function SupportBot() {
   const { isChatOpen } = useChatState();
