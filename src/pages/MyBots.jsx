@@ -5,7 +5,7 @@ import ChatWidget from '../chatbots/ChatWidget';
 import { Package, MessageSquare, Trash2, ShoppingBag, X, AlertTriangle, Sparkles, Zap, Star } from 'lucide-react';
 import './MyBots.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://botforge-backend-82fe.onrender.com/api';
 
 const BOT_FEATURES = {
   nebula: ['Deep philosophical insights', 'Cosmic metaphors & wisdom', 'Thoughtful responses', 'Fullscreen immersive chat'],

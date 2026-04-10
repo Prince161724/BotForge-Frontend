@@ -4,7 +4,7 @@ import { useChatState } from '../context/ChatContext';
 import { X, Send, Trash2, Sparkles, Minimize2, Maximize2 } from 'lucide-react';
 import './ChatWidget.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://botforge-backend-82fe.onrender.com/api';
 
 // Each bot has a unique response visual style AND position
 const BOT_STYLES = {
